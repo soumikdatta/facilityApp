@@ -1,0 +1,22 @@
+page-adduser {
+    .vertical-align-content > *
+    {
+/*         display: flex!important;
+        align-content: center!important;
+        align-items: center!important;
+ */        
+        //padding-top: 25%;
+        //padding-bottom: 25%;
+        //background-image: url('../assets/imgs/register.jpg');
+        //background-size: contain;
+        //background: #990000;
+        margin-bottom: 40px;
+    }
+    img {
+        height: 60% !important;
+        width: 60% !important;
+        align-items: center;
+        margin: auto;
+        display: block;
+    }
+}

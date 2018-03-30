@@ -1,0 +1,229 @@
+<!--
+  Generated template for the AppointmentPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="doctor">
+    <ion-title>Appointments</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <div #clinicList style="display:block">
+    <ion-list *ngFor="let clinic of clinicData">
+      <ion-item color="doctor" style="text-align:center;" (click)="goToClinic(clinic)">
+        <p *ngIf="userType == 'DOCTOR PROFILE'">{{clinic.facility_name}}</p>
+        <p *ngIf="userType != 'DOCTOR PROFILE'">{{clinic.doctor_name}}</p>
+        <p>Timing: {{clinic.chamber_start}} - {{clinic.chamber_end}}</p>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <div #appointmentList style="display:none;">
+    <ion-fab bottom left (click)="closeDiv(clinicList)" style="position:fixed; margin-bottom:60px;">
+      <button ion-fab color="primary">
+        <ion-icon name="ios-close-circle"></ion-icon>
+      </button>
+    </ion-fab>
+    <ion-fab bottom right (click)="addBookingInfo(currentClinic, appointmentList)" style="position:fixed; margin-bottom:60px;">
+      <button ion-fab color="facility">
+        <ion-icon name="ios-add-circle"></ion-icon>
+      </button>
+    </ion-fab>
+    <ion-label style="background:#f7a7b9;">
+      <div style="float:left; padding:0px 20px 0px 20px;">
+        <p>MARCH 26</p>
+        <p>{{currentClinic.chamber_start}} - {{currentClinic.chamber_end}}</p>
+          {{IN_OUT}}
+          <ion-toggle color="primary" (ionChange)="toggleAvailability()"></ion-toggle>
+      </div>
+      <div style="padding:0px 20px 0px 20px;">
+        <p style="text-transform: uppercase;">Dr. {{currentClinic.doctor_name}}</p>
+        <p style="text-transform: uppercase;">{{currentClinic.speciality}}</p>
+        <p style="text-transform: uppercase;">{{currentClinic.facility_name}}</p>
+      </div>
+    </ion-label>
+    <div class="tab">
+      <button class="tablinks active" (click)="toggleList('queue')">Queue</button>
+      <button class="tablinks" (click)="toggleList('history')">History</button>
+    </div>
+    <div id="queue" class="tabcontent" style="display:block;">
+      <ion-list>
+        <div *ngFor="let visit of appointmentData">
+          <ion-item-sliding #item style="height:80px;" *ngIf="visit.isActive==3">
+            <ion-item [color]="visit.isActive==3? 'doctor' : 'primary'" (click)="visit.isActive==1? startVisit(visit) : doNothing()">
+              <div style="float:left; width:50px; height:50px; text-align:center; font-size:40px; border-radius:50%; background:#290099; color:white; font-weight:bold;">
+                {{visit.queue_status}}
+              </div>
+              <div style="width:60%; height:50px; float:inherit;">
+                <p style="text-align:center;">{{visit.patient_name}}</p>
+                <p style="text-align:center;">{{visit.patient_phone}}</p>
+              </div>
+            </ion-item>
+            <ion-item-options side="left">
+              <button ion-button (click)="completeVisit(visit)">Complete</button>
+            </ion-item-options>
+        
+            <ion-item-options side="right">
+              <button ion-button color="danger" (click)="revertCurrent(visit)">Revert</button>
+            </ion-item-options>
+          </ion-item-sliding>
+        </div>
+      </ion-list>
+      <ion-list>
+        <div *ngFor="let appointment of appointmentData">
+          <ion-item-sliding #item *ngIf="appointment.isActive==1 || appointment.isActive==2" style="height:80px;">
+            <ion-item [color]="appointment.isActive==1? 'primary' : 'secondary'" (click)="appointment.isActive==5? startVisit(appointment) : doNothing()">
+              <div style="width:100%">
+                <div style="float:left; width:50px; height:50px; text-align:center; font-size:40px; border-radius:50%; background:#290099; color:white; font-weight:bold;">
+                  {{appointment.queue_status}}
+                </div>
+                <div style="width:auto; margin:0px; text-align:center;">
+                  <!-- <p style="text-align:center;">{{appointment.patient_name}}</p>
+                  <p style="text-align:center;">{{appointment.patient_phone}}</p> -->
+                  {{appointment.patient_name}}
+                  <br>
+                  {{appointment.patient_phone}}
+                </div>
+                <div style="float:right; width:50px; margin-bottom:60px; vertical-align: middle;">
+                  <ion-icon *ngIf="appointment.source == 'APP'" name="ios-cloud-done" style="font-size:40px;"></ion-icon>
+                  <ion-icon *ngIf="appointment.source == 'PHONE'" name="ios-call" style="font-size:40px;"></ion-icon>
+                  <ion-icon *ngIf="appointment.source == 'WALK IN'" name="ios-bicycle" style="font-size:40px;"></ion-icon>
+                </div>
+                <div style="float:right; width:50px; position:inherit;">
+                  <input type="checkbox" style="font-size: 50px; display: inline; transform: scale(3.5);" (click)="patientPresent(appointment, $event)" [disabled]="doctorAvailability == false" [checked]="appointment.isActive == 2">
+                </div>
+              </div>
+            </ion-item>
+            <ion-item-options side="left" *ngIf="doctorAvailability == true && appointment.isActive==2">
+              <button ion-button color="secondary" (click)="makeCurrent(appointment)">Make Current</button>
+            </ion-item-options>
+        
+            <ion-item-options side="right">
+              <button ion-button color="danger" (click)="cancelBooking(appointment)">Cancel</button>
+            </ion-item-options>
+          </ion-item-sliding>
+        </div>
+      </ion-list>
+      <div style="height:60px;"></div>      
+    </div>
+    <div id="history" class="tabcontent">
+      <ion-list>
+        <div *ngFor="let visit of appointmentData">
+          <ion-item-sliding #item style="height:80px;" *ngIf="visit.isActive==4">
+            <ion-item [color]="visit.isActive==3? 'doctor' : 'primary'" (click)="visit.isActive==1? startVisit(visit) : doNothing()">
+              <div style="float:left; width:50px; height:50px; text-align:center; font-size:40px; border-radius:50%; background:#290099; color:white; font-weight:bold;">
+                {{visit.queue_status}}
+              </div>
+              <div style="width:60%; height:50px; float:inherit;">
+                <p style="text-align:center;">{{visit.patient_name}}</p>
+                <p style="text-align:center;">{{visit.patient_phone}}</p>
+              </div>
+            </ion-item>
+            <!-- <ion-item-options side="left">
+              <button ion-button (click)="completeCurrent(visit)">Complete</button>
+            </ion-item-options> -->
+        
+            <ion-item-options side="right">
+              <button ion-button color="danger" (click)="revertComplete(visit)">Revert</button>
+            </ion-item-options>
+          </ion-item-sliding>
+        </div>
+      </ion-list>    
+    </div>
+  </div>
+
+  <div #noAppointment style="z-index:0; height:100%; width:100%; color:#990000; display:none; line-height: 400px; font-size:20px; vertical-align: middle; text-align:center;">
+    <ion-fab bottom left>
+      <button ion-fab color="doctor" (click)="closeDiv(clinicList)">
+        <ion-icon name="ios-close-circle"></ion-icon>
+      </button>
+    </ion-fab>
+    <ion-fab bottom right (click)="addBookingInfo(currentClinic, noAppointment)" style="position:fixed; margin-bottom:60px;">
+        <button ion-fab color="facility">
+          <ion-icon name="ios-add-circle"></ion-icon>
+        </button>
+      </ion-fab>
+    <p>No Appointment for Today</p>
+  </div>
+
+  <div #patientDetail style="z-index:10; position: absolute; height:90%; width:90%; margin-bottom:40px; display:none;">
+    <ion-fab top right (click)="closeDiv(appointmentList)">
+      <button ion-fab color="primary">
+        <ion-icon name="ios-close-circle"></ion-icon>
+      </button>
+    </ion-fab>
+    <ion-item><b>Patient Name:</b> <font color="datk">{{appointmentDetails.patient_name}}</font></ion-item>
+    <ion-item><b>Age:</b> <font color="datk">{{appointmentDetails.patient_age}}</font> &nbsp;&nbsp; <b>Sex:</b> <font color="datk">{{appointmentDetails.patient_sex}}</font></ion-item>
+    <ion-item text-wrap>
+      <b>Symptoms:</b> <font color="datk">{{appointmentDetails.symptoms}}</font>
+    </ion-item>
+    <form [formGroup]="patientVisitForm" (ngSubmit)="completeVisit(appointmentDetails)">
+      <ion-item><b>Physician Advice</b></ion-item>
+      <ion-textarea rows=10 formControlName="prescription" placeholder="Prescription" style="background: url(../assets/imgs/ynxjD.png) repeat-y; line-height: 25px; padding: 0px 2px 2px; border:2px solid rgb(118, 118, 121);"></ion-textarea>
+      <button ion-button block color="secondary" [disabled]="!patientVisitForm.valid">Complete</button>
+    </form>
+  </div>
+
+  <div #addBookingInfoPage style="display:none;">
+      <ion-fab bottom left (click)="closeDiv(appointmentList)" style="position:fixed; margin-bottom:60px;">
+          <button ion-fab color="primary">
+            <ion-icon name="ios-close-circle"></ion-icon>
+          </button>
+        </ion-fab>
+    <p><b>{{currentClinic.facility_name}}</b></p>
+  <p>{{currentClinic.facility_address}}</p>
+  <p><b>Phone:</b> {{currentClinic.facility_phone}}</p>
+  <p><b>Timimg:</b> {{currentClinic.chamber_start}} to {{currentClinic.chamber_end}}</p>
+  <p></p>
+  <p><b><i>Please provide correct information</i></b></p>
+  <p></p>
+  {{source}}
+  <ion-toggle color="primary" (ionChange)="bookingSource()"></ion-toggle>
+  <form [formGroup]="bookingForm" (ngSubmit)="saveBooking()">
+    <input type="hidden" formControlName="chamber_id"  value="{{currentClinic.chamber_id}}" readonly>
+    <!-- <input type="hidden" formControlName="patient_id"  value="{{patient_id}}" readonly> -->
+    <ion-item>
+      <ion-input type="text" formControlName="name" value="" placeholder="Patient Name" ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-textarea formControlName="address" value="" placeholder="Address" ></ion-textarea>
+    </ion-item>
+    <ion-item>
+        Phone: <ion-input type="text" formControlName="phone" value="" placeholder="Mobile No." ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input type="text" formControlName="age" value="" placeholder="Age" ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input type="text" formControlName="sex" value="" placeholder="M/F" ></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-textarea formControlName="symptoms" value="" placeholder="Symptoms (Optional)\nMax. 200 characters" rows=5 ></ion-textarea>
+    </ion-item>
+    <button ion-button block type="submit" [disabled]="!bookingForm.valid">
+      <ion-icon name="archive"></ion-icon>&nbsp;&nbsp;&nbsp;Save
+    </button>
+  </form>
+  </div>
+
+  <div #bookingConfirm style="display:none;" class="vertical-align-content">
+    <ion-grid>
+      <ion-item>
+        <h1 style="color:rgb(245, 67, 126)">Booking successful.</h1>
+      </ion-item>
+      <ion-item>
+        <b>Booking ID: <font style="color:rgb(182, 83, 240)">{{booking_id}}</font></b>
+      </ion-item>
+      <ion-item>
+        <b>Patient No.: <font style="color:rgb(182, 83, 240)">{{queue_status}}</font></b>
+      </ion-item>
+    </ion-grid>
+  </div>
+
+</ion-content>

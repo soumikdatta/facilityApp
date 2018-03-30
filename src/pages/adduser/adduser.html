@@ -1,0 +1,109 @@
+<!--
+  Generated template for the AdduserPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar hideBackButton color="doctor">
+    <ion-title>Add a User</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content text-center class="vertical-align-content">
+  <ion-grid>
+    <p></p>
+    <p></p>
+    <form [formGroup]="registrationForm" (ngSubmit)="register()" style="max-width:800px;">
+        <ion-row>
+              <ion-col>
+                <ion-item>
+                    <ion-label floating></ion-label>
+                    <ion-input type="text" formControlName="email" placeholder="Email"></ion-input>
+                </ion-item>
+                <p></p>
+                <ion-item>
+                    <ion-label floating></ion-label>
+                    <ion-input type="text" formControlName="name" placeholder="Name"></ion-input>
+                </ion-item>
+                <p></p>
+                <ion-item>
+                    <ion-label floating></ion-label>
+                    <ion-input type="text" formControlName="phone" placeholder="Phone"></ion-input>
+                </ion-item>
+                <p></p>
+                <!-- <ion-item>
+                    <ion-label floating></ion-label>
+                    <ion-input type="password" formControlName="password" placeholder="Password"></ion-input>
+                </ion-item> -->
+                <p></p>
+                <ion-list radio-group formControlName="userType" (ionChange)="checkUserType()">
+                  <ion-item style="width:150px;">
+                    <ion-label>Admin</ion-label>
+                    <ion-radio value="admin" checked></ion-radio>
+                  </ion-item>
+                  <ion-item style="width:150px;">
+                    <ion-label>Assistant</ion-label>
+                    <ion-radio value="assistant"></ion-radio>
+                  </ion-item>
+                  <ion-item style="width:150px;">
+                    <ion-label>Doctor</ion-label>
+                    <ion-radio value="doctor"></ion-radio>
+                  </ion-item>
+                </ion-list>
+                <div *ngIf="userType == 'doctor'">
+                  <p><b>Doctor Specific Fields</b></p>
+                  <ion-item style="background-color: transparent;">
+                    <ion-label floating></ion-label>
+                    <ion-input formControlName="regno" placeholder="Registration No." value="{{regno}}" ></ion-input>
+                  </ion-item>
+                    
+                  <ion-item style="background-color: transparent;">
+                    <ion-label floating></ion-label>
+                    <ion-input formControlName="spclty" placeholder="Speciality" value="{{spclty}}" ></ion-input>
+                  </ion-item>
+                    
+                  <ion-item style="background-color: transparent;">
+                    <ion-label floating></ion-label>
+                    <ion-input formControlName="exp" placeholder="Years of Experience" value="{{exp}}" ></ion-input>
+                  </ion-item>
+                </div>
+                <div *ngIf="userType == 'assistant'">
+                  <p><b>Assistant Association</b></p>
+                  <ion-list>
+                    <ion-item *ngFor="let item of clinicData">
+                      <ion-label>
+                        <p style="width:100% !important; word-wrap: break-word;">{{item.doctor_name}}</p>
+                        <p>{{item.speciality}}</p>
+                        <p>{{item.chamber_start}} - {{item.chamber_end}}</p>
+                      </ion-label>
+                      <ion-checkbox formControlName="clinic" (ionChange)="onChange(item.chamber_id, $event.checked)"></ion-checkbox>
+                    </ion-item>
+                  </ion-list>
+                </div>
+<!--                 <ion-item>
+                    <ion-label floating></ion-label>
+                    <ion-input type="text" formControlName="userId" placeholder="User ID"></ion-input>
+                </ion-item>
+                <p></p>
+                <ion-item>
+                    <ion-label floating></ion-label>
+                    <ion-textarea formControlName="address" placeholder="Address"></ion-textarea>
+                </ion-item>
+                <p></p> 
+ -->
+                <button ion-button block id="saveBtn" type="submit" [disabled]="!registrationForm.valid">Save</button>
+                <div #saveBtn style="z-index:10; position:absolute; top:0% !important; left:0% !important; height:100%; width:100%; background:transparent; display:none;">
+                  <img src="./assets/imgs/loading.gif" width="100%">
+                </div>
+                <p style="color:rgb(27, 151, 43); word-wrap: break-word; white-space: pre;">{{RSTAT}}</p>
+                <p></p>
+                <p></p>
+                <button ion-button block (click)="gotoMainPage()">Check submitted value</button>
+              </ion-col>
+        </ion-row>
+    </form>
+  </ion-grid>
+</ion-content>

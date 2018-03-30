@@ -1,0 +1,44 @@
+<!--
+  Generated template for the DoctorHomePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="doctor" hideBackButton>
+    <ion-title>Login</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content text-center class="vertical-align-content">
+  <ion-grid style="width:100%; height:100%">
+    <img src="./assets/imgs/logo.jpg" style="align-items: center; width:auto; height:auto;">
+    <p></p>
+    <p></p>
+    <form [formGroup]="loginForm" (ngSubmit)="loginAuth()">
+<!--         <div ion-fixed style="width:95%">
+ -->          <ion-row>
+            <ion-col>
+                <ion-item>
+                    <ion-label floating>User ID</ion-label>
+                    <ion-input type="text" formControlName="userId" placeholder="User ID" highlight-color="balanced"></ion-input>
+                </ion-item>
+                  
+                <ion-item>
+                    <ion-label floating>Password</ion-label>
+                    <ion-input type="password" formControlName="password" placeholder="Password" highlight-color="energized"></ion-input>
+                </ion-item>
+                <ion-label style="color:azure;">{{LSTAT}}</ion-label>
+                <button ion-button block style="background-color: rgb(248, 52, 52);" type="submit" [disabled]="!loginForm.valid">Login</button>
+                <!--
+                  <ion-label style="color:rgb(21, 145, 31);">New User?</ion-label>
+                <button ion-button block style="background-color:blueviolet;" type="button" (click)="gotoRegister()">Sign Up</button>
+                -->
+            </ion-col>
+          </ion-row>
+<!--         </div>
+ -->    </form>
+  </ion-grid>
+</ion-content>
