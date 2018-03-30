@@ -1,0 +1,39 @@
+<!--
+  Generated template for the SettingsPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="doctor">
+    <ion-title>Settings</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <div #changePassword style="display:block;">
+    <form [formGroup]="changePasswordForm">
+      <h1>Change Password</h1>
+      <ion-item>
+        <ion-input type="password" formControlName="oldPassword" placeholder="Old Password"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input type="password" formControlName="newPassword" placeholder="New Password"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input type="password" formControlName="renewPassword" placeholder="Re-type Password"></ion-input>
+      </ion-item>
+      <button ion-button block color="mymenu" [disabled]="!changePasswordForm.valid" (click)="updatePassword()">
+        Update
+      </button>
+    </form>
+
+    {{MSG}}
+
+  </div>
+
+</ion-content>

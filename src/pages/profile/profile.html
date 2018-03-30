@@ -1,0 +1,196 @@
+<!--
+  Generated template for the DoctorProfilePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="doctor">
+    <ion-title style="text-align:center;">Profile</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding class="profile" #profileContent style="display:block;width:100%;">
+  <div style="z-index:0; width:90%; height:100%; position: absolute;" *ngIf="userType == 'DOCTOR PROFILE'">
+      <div>
+        <div style="width:30%; float:left;">
+            <img #PIMG style="align-items:center; margin: auto; display: block; border-radius: 50%;" src="{{server}}/profile_pic/{{profileData.doctor_photo}}" width="150">
+        </div>
+        <div style="width:60%; float:left; text-align:center; word-wrap: break-word; padding-left:5px;">
+          <h2>{{profileData.doctor_name}}</h2>
+          <p style="text-transform: uppercase;">{{profileData.speciality}}</p>
+          <p>Regn #: {{profileData.doctor_regno}}</p>
+        </div>
+      </div>
+<!--    <ion-item>
+      Patient ID: {{profileData.doctor_id}}
+    </ion-item>
+    <ion-item>
+      Name: <ion-input value="Name" #PNAME readonly></ion-input>
+    </ion-item>
+-->
+    <ion-item text-wrap>
+      <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+        <ion-icon name="ios-key"style="font-size: 38px;" color="light"></ion-icon>
+      </div>
+      <div style="padding-left:60px; line-height: 40px; vertical-align: middle; word-wrap: break-word;">
+        <p style="font-size:20px;">Address</p>
+        <!-- <p style="word-wrap: break-word; width:50px; white-space: pre;">{{profileData.doctor_address}}</p> -->
+        <p>{{profileData.doctor_address}}</p>
+      </div>
+    </ion-item>
+    <ion-item>
+      <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+        <ion-icon name="ios-contact"style="font-size: 35px;" color="light"></ion-icon>
+      </div>
+      <div style="padding-left:60px; line-height: 40px; vertical-align: middle;">
+        <p style="font-size:20px;">Contact</p>
+        <p><ion-icon name="ios-mail">&nbsp;&nbsp;{{profileData.doctor_email}}</ion-icon></p>
+        <p><ion-icon name="ios-call">&nbsp;&nbsp;{{profileData.doctor_phone}}</ion-icon></p>
+      </div>
+    </ion-item>
+    <ion-item>
+      <div style="width:15%; background:rgb(196, 13, 13)">
+        <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+          <ion-icon name="logo-github"style="font-size: 35px;" color="light"></ion-icon>
+        </div>
+      </div>
+      <div style="width:70%; height:40px; padding-left:60px; line-height: 40px; vertical-align: middle;">
+        <p style="font-size:20px;">Experience</p>
+        <p>{{profileData.doctor_exp}} yrs.</p>
+      </div>
+    </ion-item>      
+<!--
+    <ion-item>
+      Email: <ion-input value="Email" #PEMAIL readonly></ion-input>
+    </ion-item>
+    <ion-item>
+      Phone: <ion-input value="Phone" #PPH readonly></ion-input>
+    </ion-item>
+-->
+  </div>
+  <div style="z-index:0; width:90%; height:100%; position: absolute;" *ngIf="userType == 'ADMIN PROFILE'">
+    <div>
+      <div style="width:30%; float:left;">
+          <img #PIMG style="align-items:center; margin: auto; display: block; border-radius: 50%;" src="{{server}}/profile_pic/{{profileData.admin_photo}}" width="150">
+      </div>
+      <div style="width:60%; float:left; text-align:center; word-wrap: break-word; padding-left:5px;">
+        <h2>{{profileData.admin_name}}</h2>
+        <p>{{profileData.admin_email}}</p>
+      </div>
+    </div>
+<!--    <ion-item>
+    Patient ID: {{profileData.doctor_id}}
+  </ion-item>
+  <ion-item>
+    Name: <ion-input value="Name" #PNAME readonly></ion-input>
+  </ion-item>
+-->
+  <ion-item text-wrap>
+    <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+      <ion-icon name="ios-key"style="font-size: 38px;" color="light"></ion-icon>
+    </div>
+    <div style="padding-left:60px; line-height: 40px; vertical-align: middle; word-wrap: break-word;">
+      <p style="font-size:20px;">Address</p>
+      <!-- <p style="word-wrap: break-word; width:50px; white-space: pre;">{{profileData.doctor_address}}</p> -->
+      <p>{{profileData.admin_address}}</p>
+    </div>
+  </ion-item>
+  <ion-item>
+    <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+      <ion-icon name="ios-contact"style="font-size: 35px;" color="light"></ion-icon>
+    </div>
+    <div style="padding-left:60px; line-height: 40px; vertical-align: middle;">
+      <p style="font-size:20px;">Contact</p>
+      <p><ion-icon name="ios-mail">&nbsp;&nbsp;{{profileData.admin_email}}</ion-icon></p>
+      <p><ion-icon name="ios-call">&nbsp;&nbsp;{{profileData.admin_phone}}</ion-icon></p>
+    </div>
+  </ion-item>
+<!--   <ion-item>
+    <div style="width:15%; background:rgb(196, 13, 13)">
+      <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+        <ion-icon name="logo-github"style="font-size: 35px;" color="light"></ion-icon>
+      </div>
+    </div>
+    <div style="width:70%; height:40px; padding-left:60px; line-height: 40px; vertical-align: middle;">
+      <p style="font-size:20px;">Experience</p>
+      <p>{{profileData.doctor_exp}} yrs.</p>
+    </div>
+  </ion-item>      
+ -->
+<!--
+  <ion-item>
+    Email: <ion-input value="Email" #PEMAIL readonly></ion-input>
+  </ion-item>
+  <ion-item>
+    Phone: <ion-input value="Phone" #PPH readonly></ion-input>
+  </ion-item>
+-->
+</div>
+<div style="z-index:0; width:90%; height:100%; position: absolute;" *ngIf="userType == 'ASSISTANT PROFILE'">
+  <div>
+    <div style="width:30%; float:left;">
+        <img #PIMG style="align-items:center; margin: auto; display: block; border-radius: 50%;" src="{{server}}/profile_pic/{{profileData.assistant_photo}}" width="150">
+    </div>
+    <div style="width:60%; float:left; text-align:center; word-wrap: break-word; padding-left:5px;">
+      <h2>{{profileData.assistant_name}}</h2>
+      <p>{{profileData.assistant_email}}</p>
+      <p>{{profileData.assistant_phone}}</p>
+    </div>
+  </div>
+<!--    <ion-item>
+  Patient ID: {{profileData.doctor_id}}
+</ion-item>
+<ion-item>
+  Name: <ion-input value="Name" #PNAME readonly></ion-input>
+</ion-item>
+-->
+<ion-item text-wrap>
+  <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+    <ion-icon name="ios-key"style="font-size: 38px;" color="light"></ion-icon>
+  </div>
+  <div style="padding-left:60px; line-height: 40px; vertical-align: middle; word-wrap: break-word;">
+    <p style="font-size:20px;">Address</p>
+    <!-- <p style="word-wrap: break-word; width:50px; white-space: pre;">{{profileData.doctor_address}}</p> -->
+    <p>{{profileData.assistant_address}}</p>
+  </div>
+</ion-item>
+<ion-item>
+  <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+    <ion-icon name="ios-contact"style="font-size: 35px;" color="light"></ion-icon>
+  </div>
+  <div style="padding-left:60px; line-height: 40px; vertical-align: middle;">
+    <p style="font-size:20px;">Contact</p>
+    <p><ion-icon name="ios-mail">&nbsp;&nbsp;{{profileData.assistant_email}}</ion-icon></p>
+    <p><ion-icon name="ios-call">&nbsp;&nbsp;{{profileData.assistant_phone}}</ion-icon></p>
+  </div>
+</ion-item>
+<!-- <ion-item>
+  <div style="width:15%; background:rgb(196, 13, 13)">
+    <div style="width:40px; height:40px; float:left; text-align:center; border-radius: 50%; background:rgb(128, 126, 126);">
+      <ion-icon name="logo-github"style="font-size: 35px;" color="light"></ion-icon>
+    </div>
+  </div>
+  <div style="width:70%; height:40px; padding-left:60px; line-height: 40px; vertical-align: middle;">
+    <p style="font-size:20px;">Experience</p>
+    <p>{{profileData.doctor_exp}} yrs.</p>
+  </div>
+</ion-item>       -->
+<!--
+<ion-item>
+  Email: <ion-input value="Email" #PEMAIL readonly></ion-input>
+</ion-item>
+<ion-item>
+  Phone: <ion-input value="Phone" #PPH readonly></ion-input>
+</ion-item>
+-->
+</div>
+<ion-fab bottom right (click)="editProfile()">
+    <button ion-fab color="doctor">
+      <ion-icon name="md-create"></ion-icon>
+    </button>
+  </ion-fab>
+</ion-content>
