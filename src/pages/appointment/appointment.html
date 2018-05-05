@@ -8,20 +8,62 @@
 
   <ion-navbar color="doctor">
     <ion-title>Appointments</ion-title>
+    <ion-icon style="padding-right:2rem; float:right; font-size: 30px; color:azure; font-weight:bold;" name="ios-sync" (click)="getClinic(); closeDiv(clinicList);" right></ion-icon>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
-  <div #clinicList style="display:block">
+  <div #clinicList style="display:block; height:100%;">
+    <div style="font-size:40px; margin-bottom:10px !important;">
+      <div style="float:left; width:10%;">
+        <ion-icon name="ios-arrow-dropleft" (click)="getPreviousDate()"></ion-icon>
+      </div>
+      <div style="float:left; width:80%; text-align:center;" (click)="openDatePicker()">
+        <!-- <input type="date" name="visit_date" id="visit_date" value="{{booking_date}}" (change)="changeDate()"> -->
+        <!-- <form [formGroup]="datePickerForm">
+            <ion-datetime displayFormat="DD-MMM-YYYY" formControlName="visit_date" (change)="changeDate()">{{booking_date}}</ion-datetime>
+        </form> -->
+        {{booking_date}}
+      </div>
+      <div style="float:left; width:10%;">
+        <ion-icon name="ios-arrow-dropright" (click)="getNextDate()"></ion-icon>
+      </div>
+    </div>
     <ion-list *ngFor="let clinic of clinicData">
-      <ion-item color="doctor" style="text-align:center;" (click)="goToClinic(clinic)">
-        <p *ngIf="userType == 'DOCTOR PROFILE'">{{clinic.facility_name}}</p>
-        <p *ngIf="userType != 'DOCTOR PROFILE'">{{clinic.doctor_name}}</p>
-        <p>Timing: {{clinic.chamber_start}} - {{clinic.chamber_end}}</p>
-      </ion-item>
+      <div (click)="goToClinic(clinic)">
+        <ion-item color="doctor" style="text-align:center;">
+          <p *ngIf="userType == 'DOCTOR PROFILE'">{{clinic.facility_name}}</p>
+          <p *ngIf="userType != 'DOCTOR PROFILE'">{{clinic.doctor_name}}</p>
+          <p>Timing: {{clinic.chamber_start}} - {{clinic.chamber_end}}</p>
+        </ion-item>
+        <div>
+          <ion-item>
+            <ion-label>Current Bookings: {{clinic.booking}}</ion-label>
+            <ion-toggle *ngIf="todayFlag" color="primary" (ionChange)="toggleAvailability(clinic,clinic.chamber_id, $event)" [checked]="clinic.doctorAvailability == 'IN'"></ion-toggle>
+            <ion-icon *ngIf="futureFlag" name="ios-close-circle" style="font-size:40px;"></ion-icon>
+            <!-- <ion-label>{{clinic.doctorAvailability}}</ion-label> -->
+          </ion-item>
+        </div>
+      </div>
     </ion-list>
+  </div>
+  <div #noclinicList style="display:none; height:100%; font-size:20px; vertical-align: middle; text-align:center;">
+    <div style="font-size:40px; margin-bottom:10px !important;">
+      <div style="float:left; width:10%;">
+        <ion-icon name="ios-arrow-dropleft" (click)="getPreviousDate()"></ion-icon>
+      </div>
+      <div style="float:left; width:80%; text-align:center;">
+        {{booking_date}}
+      </div>
+      <div style="float:left; width:10%;">
+        <ion-icon name="ios-arrow-dropright" (click)="getNextDate()"></ion-icon>
+      </div>
+    </div>
+    <div>
+      <p>No Clinic Exists</p>
+    </div>
   </div>
 
   <div #appointmentList style="display:none;">
@@ -30,7 +72,7 @@
         <ion-icon name="ios-close-circle"></ion-icon>
       </button>
     </ion-fab>
-    <ion-fab bottom right (click)="addBookingInfo(currentClinic, appointmentList)" style="position:fixed; margin-bottom:60px;">
+    <ion-fab *ngIf="!pastFlag" bottom right (click)="addBookingInfo(currentClinic, appointmentList)" style="position:fixed; margin-bottom:60px;">
       <button ion-fab color="facility">
         <ion-icon name="ios-add-circle"></ion-icon>
       </button>
@@ -39,8 +81,8 @@
       <div style="float:left; padding:0px 20px 0px 20px;">
         <p>MARCH 26</p>
         <p>{{currentClinic.chamber_start}} - {{currentClinic.chamber_end}}</p>
-          {{IN_OUT}}
-          <ion-toggle color="primary" (ionChange)="toggleAvailability()"></ion-toggle>
+          {{currentClinic.doctorAvailability}}
+          <ion-toggle color="primary" (ionChange)="toggleAvailability(currentClinic,currentClinic.chamber_id, $event)" [checked]="currentClinic.doctorAvailability == 'IN'" [disabled]="!todayFlag"></ion-toggle>
       </div>
       <div style="padding:0px 20px 0px 20px;">
         <p style="text-transform: uppercase;">Dr. {{currentClinic.doctor_name}}</p>
@@ -96,11 +138,12 @@
                   <ion-icon *ngIf="appointment.source == 'WALK IN'" name="ios-bicycle" style="font-size:40px;"></ion-icon>
                 </div>
                 <div style="float:right; width:50px; position:inherit;">
-                  <input type="checkbox" style="font-size: 50px; display: inline; transform: scale(3.5);" (click)="patientPresent(appointment, $event)" [disabled]="doctorAvailability == false" [checked]="appointment.isActive == 2">
+                  <!-- <input type="checkbox" style="font-size: 50px; display: inline; transform: scale(3.5);" (click)="patientPresent(appointment, $event)" [disabled]="currentClinic.doctorAvailability == 'OUT'" [checked]="appointment.isActive == 2 || appointment.source == 'WALK IN'"> -->
+                  <input type="checkbox" style="font-size: 50px; display: inline; transform: scale(3.5);" (click)="patientPresent(appointment, $event)" [checked]="appointment.isActive == 2 || appointment.source == 'WALK IN'">
                 </div>
               </div>
             </ion-item>
-            <ion-item-options side="left" *ngIf="doctorAvailability == true && appointment.isActive==2">
+            <ion-item-options side="left" *ngIf="currentClinic.doctorAvailability == 'IN' && appointment.isActive==2">
               <button ion-button color="secondary" (click)="makeCurrent(appointment)">Make Current</button>
             </ion-item-options>
         
@@ -144,7 +187,7 @@
         <ion-icon name="ios-close-circle"></ion-icon>
       </button>
     </ion-fab>
-    <ion-fab bottom right (click)="addBookingInfo(currentClinic, noAppointment)" style="position:fixed; margin-bottom:60px;">
+    <ion-fab *ngIf="!pastFlag" bottom right (click)="addBookingInfo(currentClinic, noAppointment)" style="position:fixed; margin-bottom:60px;">
         <button ion-fab color="facility">
           <ion-icon name="ios-add-circle"></ion-icon>
         </button>
@@ -184,7 +227,7 @@
   <p><b><i>Please provide correct information</i></b></p>
   <p></p>
   {{source}}
-  <ion-toggle color="primary" (ionChange)="bookingSource()"></ion-toggle>
+  <ion-toggle color="primary" value="source" (ionChange)="bookingSource(); populateConfigObject();"></ion-toggle>
   <form [formGroup]="bookingForm" (ngSubmit)="saveBooking()">
     <input type="hidden" formControlName="chamber_id"  value="{{currentClinic.chamber_id}}" readonly>
     <!-- <input type="hidden" formControlName="patient_id"  value="{{patient_id}}" readonly> -->
@@ -224,6 +267,14 @@
         <b>Patient No.: <font style="color:rgb(182, 83, 240)">{{queue_status}}</font></b>
       </ion-item>
     </ion-grid>
+  </div>
+
+  <div id="date_picker" style="display: none; z-index: 10; position: fixed; top: 100px; width:100%; height: 100%; text-align:center; font-size: 30px; word-wrap: break-word; background-color: floralwhite;">
+    <form [formGroup]="datePickerForm">
+      <p>Select a Date:</p>
+      <p><input type="date" formControlName="visit_date"></p>
+      <button block style="background-color: rgb(248, 52, 52); color:azure; font-size: 30px; width:80%; height:60px; border-radius: 30px !important;" (click)="changeDate()" [disabled]="!datePickerForm.valid">Update</button>
+    </form>
   </div>
 
 </ion-content>

@@ -60,7 +60,7 @@ export class HomePage {
           console.log("Profile Flow");
           this.navCtrl.push(AssistantmenuPage);          
         } */
-        if(val !== GlobalVars.access_type_home)
+        if(val == GlobalVars.access_type_doctor_profile || val == GlobalVars.access_type_admin_profile || val == GlobalVars.access_type_assistant_profile)
         {
           console.log("Profile Flow");
           this.navCtrl.push(MenuPage);

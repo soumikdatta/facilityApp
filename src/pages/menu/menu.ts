@@ -8,6 +8,7 @@ import { AppointmentPage } from '../appointment/appointment';
 import { ProfilePage } from '../profile/profile';
 import { AdduserPage } from '../adduser/adduser';
 import { SettingsPage } from '../settings/settings';
+import { FacilitymenuPage } from '../facilitymenu/facilitymenu';
 /**
  * Generated class for the MenuPage page.
  *
@@ -28,7 +29,7 @@ export class MenuPage {
   
   tab1Root = AppointmentPage;
   tab2Root = ProfilePage;
-  tab3Root = AdduserPage;
+  tab3Root = FacilitymenuPage;
   tab4Root = SettingsPage;
 
   constructor(public navCtrl: NavController, public storage:Storage) {

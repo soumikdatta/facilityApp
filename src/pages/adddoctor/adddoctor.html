@@ -14,5 +14,56 @@
 
 
 <ion-content padding>
-
+  <ion-grid>
+    <form [formGroup]="registrationForm" (ngSubmit)="register()" style="max-width:800px;">
+        <ion-row>
+          <ion-col>
+            <ion-item>
+              <ion-label>Doctor</ion-label>
+              <ion-select formControlName="doctor">
+                <ion-option *ngFor="let doctor of doctorList" value="{{doctor.doctor_id}}">{{doctor.doctor_name}}</ion-option>
+              </ion-select>
+            </ion-item>
+            <p></p>
+            <ion-item *ngFor="let day of weekdays">
+              <ion-label>
+                <p style="width:100% !important; word-wrap: break-word;">{{day.value}}</p>
+              </ion-label>
+              <ion-checkbox formControlName="clinicDay" (ionChange)="onChange(day.id, $event.checked)"></ion-checkbox>
+            </ion-item>
+            <p></p>
+            <ion-item>
+              <ion-label>Clinic Start</ion-label>
+              <ion-select formControlName="clinicStartHr">
+                <ion-option *ngFor="let hour of clinicHour" value="{{hour}}">{{hour}}</ion-option>
+              </ion-select>
+              <ion-select formControlName="clinicStartMin">
+                <ion-option value="00">00</ion-option>
+                <ion-option value="30">30</ion-option>
+              </ion-select>
+            </ion-item>
+            <p></p>
+            <ion-item>
+              <ion-label>Clinic End</ion-label>
+              <ion-select formControlName="clinicEndHr">
+                <ion-option *ngFor="let hour of clinicHour" value="{{hour}}">{{hour}}</ion-option>
+              </ion-select>
+              <ion-select formControlName="clinicEndMin">
+                <ion-option value="00">00</ion-option>
+                <ion-option value="30">30</ion-option>
+              </ion-select>
+            </ion-item>
+            <p></p>
+            <p></p>
+            <button ion-button block id="saveBtn" type="submit" style="margin-bottom:100px;" [disabled]="!registrationForm.valid">Save</button>
+            <div #saveBtn style="z-index:10; position:absolute; top:0% !important; left:0% !important; height:100%; width:100%; background:transparent; display:none;">
+              <img src="./assets/imgs/loading.gif" width="100%">
+            </div>
+            <p style="color:rgb(27, 151, 43); word-wrap: break-word; white-space: pre;">{{RSTAT}}</p>
+            <p></p>
+            <p></p>
+          </ion-col>
+        </ion-row>
+    </form>
+  </ion-grid>
 </ion-content>

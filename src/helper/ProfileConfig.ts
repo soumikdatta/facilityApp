@@ -13,5 +13,6 @@ export class ProfileConfig{
     public isActive:boolean;
     public user_type:string;
     public clinic:string[];
+	public facility_id:string;
 
 }

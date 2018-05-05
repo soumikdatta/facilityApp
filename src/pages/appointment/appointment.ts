@@ -32,6 +32,7 @@ import { LoadingController } from 'ionic-angular';
 export class AppointmentPage {
 
   @ViewChild("clinicList") clinicList;
+  @ViewChild("noclinicList") noclinicList;
   @ViewChild("appointmentList") appointmentList;
   @ViewChild("noAppointment") noAppointment;
   @ViewChild("patientDetail") patientDetail;
@@ -47,16 +48,25 @@ export class AppointmentPage {
   public userType;
   public currentVisit = [];
   public currentClinic =[];
-  public doctorAvailability = false;
-  public IN_OUT = "OUT";
+  public doctorAvailability = "OUT";
+  //public IN_OUT = "OUT";
   public source = "WALK IN";
   public booking_id: any;
   public queue_status: any;
   private chamber_id;
+  private today = new Date();
+  private query_date = new Date();
+  public booking_date = "";
+  private month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  private month_names_short = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  public todayFlag = true;
+  public pastFlag = false;
+  public futureFlag = false;
 
   private patientVisitForm : FormGroup=new FormGroup({controllername:new FormControl()});
 
   private bookingForm : FormGroup=new FormGroup({controllername:new FormControl()});
+  private datePickerForm : FormGroup=new FormGroup({controllername:new FormControl()});
 
   private bookingConfig : BookingConfig;
   
@@ -75,6 +85,10 @@ export class AppointmentPage {
         phone:['', Validators.compose([Validators.minLength(10), Validators.maxLength(12), Validators.pattern('[0-9 ]*'), Validators.required])],
         symptoms:['', Validators.compose([Validators.maxLength(200), Validators.pattern('[a-zA-Z0-9\.\'\,\/ ]*'), Validators.required])]
       });
+      this.datePickerForm = this.formBuilder.group({
+        /* datePicker:['',Validators.compose([Validators.minLength(10), Validators.maxLength(10), Validators.pattern('[0-9\/ ]*'), Validators.required])] */
+        visit_date:['']
+      });
   }
 
   ionViewDidEnter() {
@@ -84,6 +98,8 @@ export class AppointmentPage {
     this.patientDetail.nativeElement.style.display = "none";
     this.addBookingInfoPage.nativeElement.style.display = "none";
     this.bookingConfirm.nativeElement.style.display = "none";
+    
+    this.calculateBookingDate();
   }
 
   ionViewWillLeave() {
@@ -101,94 +117,139 @@ export class AppointmentPage {
     this.addBookingInfoPage.nativeElement.style.display = "none";
     this.bookingConfirm.nativeElement.style.display = "none";
 
+    this.calculateBookingDate();
+
     this.storage.get(GlobalVars.access_type_key).then(val=> {
        
       console.log(val);
       this.userType = val;
-      if(val==GlobalVars.access_type_doctor_profile)
-      {
-        console.log("Doctor Profile Loaded Again");
-        this.storage.get(GlobalVars.doctor_profile_storage_key).then(result=>{
-          if(result != null){
-    //          let jsonData:string=JSON.stringify(result);
-            let myData = JSON.parse(result);
-          console.log("Stored Data constructor:",myData);
-            if(myData)
-            {
-              console.log("Patient Photo Constructor",myData.records[0].doctor_photo);
-              this.getClinicURL=GlobalVars.END_POINT_GET_DOCTOR_CLINIC + "?doctor_id=" + myData.records[0].doctor_id;
-              console.log(this.getClinicURL);
-              this.httpClient.get(this.getClinicURL).map((res: Response) => res).subscribe(data => {
-              //console.log(data);
-              let jsonData:string=JSON.stringify(data);
-    //        console.log(jsonData);
-    //        this.storage.set(GlobalVars.patient_profile_storage_key,jsonData);  
-              this.clinicData = JSON.parse(jsonData).records;
-              console.log(this.clinicData);
-              });            
-            }
-          }
-        });
-      }
-      else if(val==GlobalVars.access_type_admin_profile)
-      {
-        console.log("Admin Profile Loaded Again");
-        this.storage.get(GlobalVars.admin_profile_storage_key).then(result=>{
-          if(result != null){
-    //          let jsonData:string=JSON.stringify(result);
-            let myData = JSON.parse(result);
-          console.log("Stored Data constructor:",myData);
-            if(myData)
-            {
-              console.log("Patient Photo Constructor",myData.records[0].admin_photo);
-              this.getClinicURL=GlobalVars.END_POINT_GET_ADMIN_CLINIC + "?admin_id=" + myData.records[0].admin_id;
-              console.log(this.getClinicURL);
-              this.httpClient.get(this.getClinicURL).map((res: Response) => res).subscribe(data => {
-              //console.log(data);
-              let jsonData:string=JSON.stringify(data);
-    //        console.log(jsonData);
-    //        this.storage.set(GlobalVars.patient_profile_storage_key,jsonData);  
-              this.clinicData = JSON.parse(jsonData).records;
-              console.log(this.clinicData);
-              });            
-            }
-          }
-        });
-      }
-      else if(val==GlobalVars.access_type_assistant_profile)
-      {
-        console.log("Assistant Profile Loaded Again");
-        this.storage.get(GlobalVars.assistant_profile_storage_key).then(result=>{
-          if(result != null){
-    //          let jsonData:string=JSON.stringify(result);
-            let myData = JSON.parse(result);
-          console.log("Stored Data constructor:",myData);
-            if(myData)
-            {
-              console.log("Patient Photo Constructor",myData.records[0].assistant_photo);
-              this.getClinicURL=GlobalVars.END_POINT_GET_ASSISTANT_CLINIC + "?assistant_id=" + myData.records[0].assistant_id;
-              console.log(this.getClinicURL);
-              this.httpClient.get(this.getClinicURL).map((res: Response) => res).subscribe(data => {
-              //console.log(data);
-              let jsonData:string=JSON.stringify(data);
-    //        console.log(jsonData);
-    //        this.storage.set(GlobalVars.patient_profile_storage_key,jsonData);  
-              this.clinicData = JSON.parse(jsonData).records;
-              console.log(this.clinicData);
-              });            
-            }
-          }
-        });
-      }
+
+      this.getClinic();
+
     });
+  }
+
+  getClinic()
+  {
+    if(this.userType==GlobalVars.access_type_doctor_profile)
+    {
+      console.log("Doctor Profile Loaded Again");
+      this.storage.get(GlobalVars.doctor_profile_storage_key).then(result=>{
+        if(result != null){
+  //          let jsonData:string=JSON.stringify(result);
+          let myData = JSON.parse(result);
+        console.log("Stored Data constructor:",myData);
+          if(myData)
+          {
+            console.log("Patient Photo Constructor",myData.records[0].doctor_photo);
+            this.getClinicURL=GlobalVars.END_POINT_GET_DOCTOR_CLINIC + "?doctor_id=" + myData.records[0].doctor_id + "&booking_date=" + this.query_date.toLocaleString();
+            console.log(this.getClinicURL);
+            this.httpClient.get(this.getClinicURL).map((res: Response) => res).subscribe(data => {
+            //console.log(data);
+            let jsonData:string=JSON.stringify(data);
+  //        console.log(jsonData);
+  //        this.storage.set(GlobalVars.patient_profile_storage_key,jsonData);  
+            if(typeof JSON.parse(jsonData).records == "object")
+            {
+              console.log("object");
+              this.clinicData = JSON.parse(jsonData).records;
+              console.log(this.clinicData);
+              this.clinicList.nativeElement.style.display = "block";
+              this.noclinicList.nativeElement.style.display = "none";
+            }
+            else if(typeof JSON.parse(jsonData).records == "string")
+            {
+              console.log("string");
+              this.clinicList.nativeElement.style.display = "none";
+              this.noclinicList.nativeElement.style.display = "block";
+            }
+            });            
+          }
+        }
+      });
+    }
+    else if(this.userType==GlobalVars.access_type_admin_profile)
+    {
+      console.log("Admin Profile Loaded Again");
+      this.storage.get(GlobalVars.admin_profile_storage_key).then(result=>{
+        if(result != null){
+  //          let jsonData:string=JSON.stringify(result);
+          let myData = JSON.parse(result);
+        console.log("Stored Data constructor:",myData);
+          if(myData)
+          {
+            console.log("Patient Photo Constructor",myData.records[0].admin_photo);
+            this.getClinicURL=GlobalVars.END_POINT_GET_ADMIN_CLINIC + "?admin_id=" + myData.records[0].admin_id + "&booking_date=" + this.query_date.toLocaleString();
+            console.log(this.getClinicURL);
+            this.httpClient.get(this.getClinicURL).map((res: Response) => res).subscribe(data => {
+            //console.log(data);
+            let jsonData:string=JSON.stringify(data);
+  //        console.log(jsonData);
+  //        this.storage.set(GlobalVars.patient_profile_storage_key,jsonData);  
+            if(typeof JSON.parse(jsonData).records == "object")
+            {
+              console.log("object");
+              this.clinicData = JSON.parse(jsonData).records;
+              console.log(this.clinicData);
+              this.clinicList.nativeElement.style.display = "block";
+              this.noclinicList.nativeElement.style.display = "none";
+            }
+            else if(typeof JSON.parse(jsonData).records == "string")
+            {
+              console.log("string");
+              this.clinicList.nativeElement.style.display = "none";
+              this.noclinicList.nativeElement.style.display = "block";
+            }
+            });            
+          }
+        }
+      });
+    }
+    else if(this.userType==GlobalVars.access_type_assistant_profile)
+    {
+      console.log("Assistant Profile Loaded Again");
+      this.storage.get(GlobalVars.assistant_profile_storage_key).then(result=>{
+        if(result != null){
+  //          let jsonData:string=JSON.stringify(result);
+          let myData = JSON.parse(result);
+        console.log("Stored Data constructor:",myData);
+          if(myData)
+          {
+            console.log("Patient Photo Constructor",myData.records[0].assistant_photo);
+            this.getClinicURL=GlobalVars.END_POINT_GET_ASSISTANT_CLINIC + "?assistant_id=" + myData.records[0].assistant_id + "&booking_date=" + this.query_date.toLocaleString();
+            console.log(this.getClinicURL);
+            this.httpClient.get(this.getClinicURL).map((res: Response) => res).subscribe(data => {
+            //console.log(data);
+            let jsonData:string=JSON.stringify(data);
+  //        console.log(jsonData);
+  //        this.storage.set(GlobalVars.patient_profile_storage_key,jsonData);  
+              if(typeof JSON.parse(jsonData).records == "object")
+              {
+                console.log("object");
+                this.clinicData = JSON.parse(jsonData).records;
+                console.log(this.clinicData);
+                this.clinicList.nativeElement.style.display = "block";
+                this.noclinicList.nativeElement.style.display = "none";
+              }
+              else if(typeof JSON.parse(jsonData).records == "string")
+              {
+                console.log("string");
+                this.clinicList.nativeElement.style.display = "none";
+                this.noclinicList.nativeElement.style.display = "block";
+              }
+            });            
+          }
+        }
+      });
+    }
   }
 
   goToClinic(clinic)
   {
-    console.log(clinic);
+    console.log(clinic.doctorAvailability);
     this.currentClinic = clinic;
     this.chamber_id = clinic.chamber_id;
-    this.getAppointmentURL=GlobalVars.END_POINT_GET_CLINIC_APPOINTMENTS + "?chamber_id=" + clinic.chamber_id;
+    this.getAppointmentURL=GlobalVars.END_POINT_GET_CLINIC_APPOINTMENTS + "?chamber_id=" + clinic.chamber_id + "&booking_date=" + this.query_date.toLocaleString();
     console.log(this.getAppointmentURL);
     this.httpClient.get(this.getAppointmentURL).map((res: Response) => res).subscribe(data => {
     //console.log(data);
@@ -206,6 +267,11 @@ export class AppointmentPage {
         this.appointmentData = myData.records;
         console.log(myData.records);
         console.log(this.appointmentData);
+
+        /* for(var i=0; i<this.appointmentData.length; i++)
+        {
+          this.appointmentData[i].doctorAvailability = "OUT";
+        } */
 
         this.clinicList.nativeElement.style.display = "none";
         if(this.appointmentData.length>0)
@@ -335,22 +401,44 @@ export class AppointmentPage {
     console.log("Cancelled: ",this.appointmentData);
   }
 
-  toggleAvailability()
+  toggleAvailability(clinic,chamber_id, evt)
   {
-    if(this.doctorAvailability == true){
-      this.doctorAvailability = false;
-      this.IN_OUT = "OUT";
+    console.log(clinic);
+    console.log(evt.checked);
+    if((evt.checked && clinic.doctorAvailability == "OUT") || (!evt.checked && clinic.doctorAvailability == "IN"))
+    {
+      console.log("Need to update availability");
+      for(var i=0; i<this.clinicData.length; i++)
+      {
+        if(this.clinicData[i].chamber_id == chamber_id)
+        {
+          if(this.clinicData[i].doctorAvailability == 'IN'){
+            this.clinicData[i].doctorAvailability = 'OUT';
+            //chamber_id.IN_OUT = "OUT";
+          }
+          else{
+            this.clinicData[i].doctorAvailability = 'IN';
+            //chamber_id.IN_OUT = "IN";
+          }
+        }
+      }
+      let availabilityURL = GlobalVars.END_POINT_SEND_AVAILABILITY + "?chamber_id=" + chamber_id + "&doctorAvailability=" + clinic.doctorAvailability;
+      console.log(availabilityURL);
+      this.httpClient.get(availabilityURL).map((res: Response) => res).subscribe(data => {
+        let jsonData:string=JSON.stringify(data);
+        //console.log(jsonData);
+          let myData = JSON.parse(jsonData);
+          console.log("Availability Response",myData.message);
+          //alert(myData.message);
+      });
     }
-    else{
-      this.doctorAvailability = true;
-      this.IN_OUT = "IN";
-    }
-    console.log(this.doctorAvailability);
+    //console.log(clinic.doctorAvailability);
+    //console.log(clinic);
   }
 
   addBookingInfo(currentClinic, divID)
   {
-    console.log("addBookingInfo",divID);
+    //console.log("addBookingInfo",divID);
     divID.style.display = "none";
     this.addBookingInfoPage.nativeElement.style.display = "block";
   }
@@ -392,7 +480,7 @@ export class AppointmentPage {
         err => {
           loader.dismiss();
           //console.log(bookingConfigJson);
-          //console.log('Could not save Profile!',err);
+          console.log('Could not save Profile!',err);
         }
       );
       //console.log(JSON.stringify(this.ambulanceConfig));
@@ -449,6 +537,55 @@ export class AppointmentPage {
         //console.log("LoginAuth Response",myData.message);
         //alert(myData.message);
     });
+  }
+
+  calculateBookingDate()
+  {
+    this.booking_date = this.query_date.getDate() + "-" + this.month_names_short[this.query_date.getMonth()] + "-" + this.query_date.getFullYear();
+    console.log("Booking Date",this.booking_date);
+    //console.log("Query Date",this.query_date.getTime());
+    //console.log("Today",this.today.getTime());
+    this.todayFlag = this.query_date.getTime() === this.today.getTime() ? true : false;
+    this.pastFlag = this.query_date.getTime() < this.today.getTime() ? true : false;
+    this.futureFlag = this.query_date.getTime() > this.today.getTime() ? true : false;
+    console.log("todayFlag",this.todayFlag);
+    console.log("futureFlag",this.futureFlag);
+    console.log("pastFlag",this.pastFlag);
+  }
+
+  getPreviousDate()
+  {
+    this.query_date = new Date(this.query_date.getTime() - (1000 * 60 * 60 * 24));
+    this.calculateBookingDate();
+    this.getClinic();
+  }
+
+  getNextDate()
+  {
+    this.query_date = new Date(this.query_date.getTime() + (1000 * 60 * 60 * 24));
+    console.log(this.query_date);
+    this.calculateBookingDate();
+    this.getClinic();
+  }
+
+  changeDate()
+  {
+    var visitDate = this.datePickerForm.value.visit_date;
+    document.getElementById("date_picker").style.display = "none";
+    console.log("Visit Date:",visitDate);
+    console.log(visitDate == "");
+    if(visitDate != "")
+    {
+      this.query_date = new Date(visitDate);
+      console.log(this.query_date);
+      this.calculateBookingDate();
+      this.getClinic();
+    }
+  }
+
+  openDatePicker()
+  {
+    document.getElementById("date_picker").style.display = "block";
   }
 
 }

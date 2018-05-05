@@ -18,8 +18,8 @@ import { HomePage } from '../home/home';
 })
 export class FacilitymenuPage {
 
-  tab1Root = AdddoctorPage;
-  tab2Root = AdduserPage;
+  tab1Root = AdduserPage;
+  tab2Root = AdddoctorPage;
   tab3Root = HomePage;
 
   constructor(public navCtrl: NavController, public storage:Storage) {

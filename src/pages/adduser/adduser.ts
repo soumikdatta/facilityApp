@@ -177,6 +177,7 @@ export class AdduserPage {
     this.profileConfig.speciality = this.registrationForm.value.spclty;
     this.profileConfig.user_exp = this.registrationForm.value.exp;
     this.profileConfig.clinic = this.clinicChosen;
+	this.profileConfig.facility_id = this.FID;
     
   }
   
@@ -226,9 +227,13 @@ export class AdduserPage {
     else
     {
       //console.log("Can't capture");
-      let idx = this.clinicChosen.find(x => x.value == id);
+      /* let idx = this.clinicChosen.find(x => x.value == id);
       //console.log(idx);
-      this.clinicChosen.splice(idx, 1);
+      this.clinicChosen.splice(idx, 1); */
+      this.clinicChosen.forEach( (chosen_id, index) => {
+        if(chosen_id === id)
+          this.clinicChosen.splice(index,1);
+      });
       console.log("Selected: ",this.clinicChosen);
     }
   }
